@@ -1,6 +1,7 @@
 # Proposed AWS Architecture
 
-**Status:** Draft for SME review  
+**Status:** Approved  
+**Approval date:** August 7, 2026
 **AWS Region:** `us-east-2`
 
 ## Objective

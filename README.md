@@ -10,9 +10,9 @@ The solution will support customer value analysis, RFM segmentation, churn indic
 
 ## Current Status
 
-Source profiling and relationship analysis are complete. The proposed AWS architecture and solution design have been submitted for SME approval.
+Source profiling and relationship analysis are complete. The proposed AWS architecture and solution design were approved by the SME on August 7, 2026.
 
-No AWS resources will be created until written approval is received.
+Phase 03 will begin with AWS account verification and cost-controlled infrastructure setup.
 
 ## Project Plan
 
@@ -20,7 +20,7 @@ No AWS resources will be created until written approval is received.
 |---|---|---|
 | 00 | Repository setup and source-file organization | Complete |
 | 01 | Source profiling, integrity checks, keys, and relationships | Complete |
-| 02 | AWS architecture, data model, solution design, and review | Awaiting SME approval |
+| 02 | AWS architecture, data model, solution design, and review | Complete |
 | 03 | AWS infrastructure and SQL Server source setup | Not started |
 | 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Not started |
 | 05 | Business metrics and analytical SQL queries | Not started |
@@ -82,4 +82,4 @@ The following items require confirmation before transformation rules are finaliz
 
 ## Current Focus
 
-Obtain written SME approval for the proposed architecture and solution design before creating AWS resources.
+Begin Phase 03 by verifying the AWS CLI profile and creating the approved AWS infrastructure. No AWS resources have been created yet.
