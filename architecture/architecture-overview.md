@@ -79,7 +79,7 @@ The workflow provides:
 - Workflow history
 - Repair and resume from a failed node
 
-Glue Workflow is not required for every AWS pipeline. It is a good fit here because it keeps the related Glue processing components together without adding a separate orchestration service.
+Glue Workflow is a good fit here because it keeps the related Glue processing components together without adding a separate orchestration service.
 
 ## Source Setup
 
@@ -100,8 +100,6 @@ The SQL Server tables are:
 - `date_dim`
 
 After setup, the scheduled pipeline reads from SQL Server. DBeaver is not part of the daily pipeline.
-
-SQL Server Management Studio, Docker, and a Windows virtual machine are not required.
 
 ## Medallion Data Layers
 
