@@ -21,7 +21,7 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 | 00 | Repository setup and source-file organization | Complete |
 | 01 | Source profiling, integrity checks, keys, and relationships | Complete |
 | 02 | AWS architecture, data model, solution design, and review | Complete |
-| 03 | AWS infrastructure and SQL Server source setup | Not started |
+| 03 | AWS infrastructure and SQL Server source setup | In progress |
 | 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Not started |
 | 05 | Business metrics and analytical SQL queries | Not started |
 | 06 | Streamlit dashboard | Not started |
@@ -37,6 +37,7 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 - Documented the profiling process and current findings.
 - Drafted the AWS architecture and solution design.
 - Submitted the proposed design for SME approval.
+- Created the encrypted S3 data lake foundation with public-access blocking, versioning, project tags, and separate data-layer prefixes.
 
 ## Findings to Date
 
@@ -82,4 +83,4 @@ The following items require confirmation before transformation rules are finaliz
 
 ## Current Focus
 
-Begin Phase 03 by verifying the AWS CLI profile and creating the approved AWS infrastructure. No AWS resources have been created yet.
+Configure the approved AWS network path and create the Amazon RDS for SQL Server source.
