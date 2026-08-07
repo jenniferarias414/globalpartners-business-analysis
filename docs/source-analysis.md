@@ -50,7 +50,7 @@ Every 2023 order row matches the date dimension. The 122,855 unmatched rows fall
 
 ## Missing Values Requiring Review
 
-- One order-item row is missing `lineitem_id`, `item_category`, and `item_name`.
+- One missing value was found in each of `lineitem_id`, `item_category`, and `item_name`. The current reports do not yet confirm whether they occur on the same row.
 - `user_id` is missing from 17,808 rows.
 - `printed_card_number` is missing from 157,435 rows.
 - `holiday_name` is populated for 12 date records and empty for the remaining dates.
