@@ -65,8 +65,6 @@ flowchart TD
     class QUAR quarantine
 ```
 
-The Mermaid diagram is a version-controlled draft. A draw.io diagram with AWS icons will be the primary diagram used for review.
-
 ## Why AWS Glue Workflow
 
 AWS Glue Workflow is proposed because the processing sequence consists primarily of dependent Glue PySpark jobs and a Glue crawler.
