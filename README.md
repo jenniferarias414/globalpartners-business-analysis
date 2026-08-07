@@ -38,6 +38,7 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 - Drafted the AWS architecture and solution design.
 - Submitted the proposed design for SME approval.
 - Created the encrypted S3 data lake foundation with public-access blocking, versioning, project tags, and separate data-layer prefixes.
+- Created the project security group and S3 gateway endpoint for private Glue, RDS, and S3 connectivity.
 
 ## Findings to Date
 
@@ -83,4 +84,4 @@ The following items require confirmation before transformation rules are finaliz
 
 ## Current Focus
 
-Configure the approved AWS network path and create the Amazon RDS for SQL Server source.
+Create the Amazon RDS for SQL Server source and configure restricted DBeaver access.
