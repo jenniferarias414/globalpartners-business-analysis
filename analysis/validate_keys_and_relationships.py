@@ -180,11 +180,14 @@ def main() -> None:
 
     parsed_order_dates = pd.to_datetime(
         order_items["creation_time_utc"],
+        format="ISO8601",
         errors="coerce",
         utc=True,
     )
+
     parsed_dimension_dates = pd.to_datetime(
         date_dim["date_key"],
+        format="%d-%m-%Y",
         errors="coerce",
     )
 
