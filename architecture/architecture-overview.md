@@ -88,10 +88,11 @@ The supplied data currently exists as three CSV files.
 During one-time project setup, DBeaver will be used to:
 
 1. Connect from the Mac to Amazon RDS for SQL Server.
-2. Create the SQL Server tables.
+2. Create the three source tables.
 3. Import the supplied CSV records.
-4. Run T-SQL validation queries.
-5. Confirm source schemas and row counts.
+4. Run simple SQL queries to confirm that the expected columns and row counts loaded correctly.
+
+Detailed data quality checks will be performed by the pipeline rather than repeated during the source import.
 
 The SQL Server tables are:
 
