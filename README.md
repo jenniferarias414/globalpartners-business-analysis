@@ -6,16 +6,22 @@ AWS-based data engineering and analytics project using SQL Server source data, P
 
 Build a production-style pipeline that creates a unified view of customer behavior and business performance across restaurant locations and ordering platforms.
 
-The final solution will support daily Customer Lifetime Value, RFM segmentation, churn indicators, sales trends, loyalty comparisons, location performance, and pricing and discount analysis.
+The solution will support customer value analysis, RFM segmentation, churn indicators, sales trends, loyalty comparisons, location performance, and pricing or discount analysis where supported by the source data.
+
+## Current Status
+
+Source profiling and relationship analysis are complete. The proposed AWS architecture and solution design have been submitted for SME approval.
+
+No AWS resources will be created until written approval is received.
 
 ## Project Plan
 
 | Phase | Work | Status |
 |---|---|---|
 | 00 | Repository setup and source-file organization | Complete |
-| 01 | Source profiling, integrity checks, keys, and relationships | In progress |
-| 02 | AWS architecture, data model, solution design, and review | Not started |
-| 03 | AWS infrastructure and SQL Server ingestion | Not started |
+| 01 | Source profiling, integrity checks, keys, and relationships | Complete |
+| 02 | AWS architecture, data model, solution design, and review | Awaiting SME approval |
+| 03 | AWS infrastructure and SQL Server source setup | Not started |
 | 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Not started |
 | 05 | Business metrics and analytical SQL queries | Not started |
 | 06 | Streamlit dashboard | Not started |
@@ -26,9 +32,11 @@ The final solution will support daily Customer Lifetime Value, RFM segmentation,
 - Created the repository structure and protected local source files with `.gitignore`.
 - Created a reproducible Python environment.
 - Built scripts for source profiling, candidate-key testing, relationship validation, and exception analysis.
-- Verified the delivered schemas and documented row counts.
-- Generated local reports for column quality, keys, relationships, and date coverage.
+- Verified the supplied schemas and documented row counts.
+- Generated reports for column quality, keys, relationships, and date coverage.
 - Documented the profiling process and current findings.
+- Drafted the AWS architecture and solution design.
+- Submitted the proposed design for SME approval.
 
 ## Findings to Date
 
@@ -44,6 +52,34 @@ The final solution will support daily Customer Lifetime Value, RFM segmentation,
 - `user_id` is missing from 8.75% of order-item rows.
 - `printed_card_number` is missing from 77.36% of order-item rows.
 
+## Proposed AWS Architecture
+
+![Proposed AWS architecture](architecture/globalpartners-architecture-diagram.png)
+
+The proposed design uses Amazon RDS for SQL Server as the pipeline source. A scheduled AWS Glue Workflow extracts the source data to an Amazon S3 Bronze layer and runs separate PySpark jobs for the Silver tables. A Gold job creates business-facing analytical tables.
+
+AWS Glue Data Catalog and Athena provide the SQL query layer. The final Streamlit dashboard will be hosted temporarily on Amazon EC2 for validation, screenshots, and the project walkthrough.
+
+The design also includes encryption, pipeline monitoring, failure notifications, and processing-date reload support.
+
+## Open Decisions
+
+The following items require confirmation before transformation rules are finalized:
+
+- Whether `user_id` should be treated as the requested customer identifier.
+- Whether `restaurant_id` should be treated as the requested location identifier.
+- Whether the date dimension should be extended to cover the complete order history.
+- How exact repeated option rows and orphan option records should be handled.
+- How missing customer identifiers should affect customer-level metrics.
+- How profitability and discount analysis should be handled without documented product-cost or explicit discount fields.
+- What thresholds should be used for RFM and churn indicators.
+
+## Documentation
+
+- [Architecture overview](architecture/architecture-overview.md)
+- [Solution design](docs/solution-design.md)
+- [Source analysis](docs/source-analysis.md)
+
 ## Current Focus
 
-Complete Phase 01 by validating customer identifiers, loyalty relationships, numeric fields, and the business meaning of the remaining data-quality exceptions.
+Obtain written SME approval for the proposed architecture and solution design before creating AWS resources.
