@@ -85,3 +85,4 @@ The following items require confirmation before transformation rules are finaliz
 ## Current Focus
 
 Create the Amazon RDS for SQL Server source and configure restricted DBeaver access.
+Must keep cost in mind while working on EC2 and with RDS.
