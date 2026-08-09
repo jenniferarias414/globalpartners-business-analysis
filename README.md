@@ -40,6 +40,11 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 - Created the encrypted S3 data lake foundation with public-access blocking, versioning, project tags, and separate data-layer prefixes.
 - Created the project security group and S3 gateway endpoint for private Glue, RDS, and S3 connectivity.
 - Created the encrypted Amazon RDS for SQL Server source with restricted network access, automated backups, and RDS-managed credentials in Secrets Manager.
+- Provisioned the encrypted S3, network, and RDS SQL Server foundations.
+- Connected to RDS SQL Server from macOS using DBeaver.
+- Created the `globalpartners` database and three typed source tables.
+- Prepared SQL Server-compatible load files without modifying the original CSVs.
+- Loaded and validated all 396,901 source records in SQL Server.
 
 ## Findings to Date
 
@@ -85,4 +90,4 @@ The following items require confirmation before transformation rules are finaliz
 
 ## Current Focus
 
-Connect to Amazon RDS through DBeaver, create the three SQL Server source tables, and import the supplied CSV records.
+Configure AWS Glue access to RDS SQL Server and build the first extraction job from SQL Server into the S3 Bronze layer.
