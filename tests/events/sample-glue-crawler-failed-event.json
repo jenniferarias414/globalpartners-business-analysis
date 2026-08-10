@@ -1,0 +1,14 @@
+{
+  "version": "0",
+  "id": "66666666-7777-8888-9999-000000000000",
+  "detail-type": "Glue Crawler State Change",
+  "source": "aws.glue",
+  "account": "272987324508",
+  "time": "2026-08-10T22:05:00Z",
+  "region": "us-east-2",
+  "resources": [],
+  "detail": {
+    "crawlerName": "globalpartners-gold-crawler",
+    "state": "Failed"
+  }
+}

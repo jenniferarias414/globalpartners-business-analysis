@@ -1,0 +1,14 @@
+{
+  "source": ["aws.glue"],
+  "detail-type": ["Glue Job State Change"],
+  "detail": {
+    "jobName": [
+      "globalpartners-bronze-ingest",
+      "globalpartners-silver-date-dim",
+      "globalpartners-silver-order-items",
+      "globalpartners-silver-order-item-options",
+      "globalpartners-gold-business-metrics"
+    ],
+    "state": ["FAILED", "TIMEOUT", "STOPPED"]
+  }
+}

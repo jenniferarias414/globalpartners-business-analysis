@@ -24,9 +24,9 @@ The AWS pipeline from RDS SQL Server through S3 Bronze, separate Silver transfor
 | 01 | Source profiling, integrity checks, keys, and relationships | Complete |
 | 02 | AWS architecture, data model, solution design, and SME review | Complete |
 | 03 | AWS infrastructure and SQL Server source setup | Complete |
-| 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | In progress |
+| 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Complete |
 | 05 | Business metrics and analytical SQL queries | Complete |
-| 06 | Streamlit dashboard | Not started |
+| 06 | Streamlit dashboard | In Progress |
 | 07 | Testing, CI/CD, documentation, and walkthrough | Not started |
 
 ## Work Completed
@@ -146,6 +146,26 @@ The following rules must be resolved or clearly documented during Silver and Gol
 - How profitability and discount analysis should be handled without documented product-cost or explicit discount fields.
 - What thresholds should be used for RFM and churn indicators.
 
+## Monitoring and Recovery
+
+EventBridge monitors the five project Glue jobs for failed, timed-out, or stopped
+runs and monitors the Gold crawler for failure. Matching events are formatted
+and sent through the `globalpartners-pipeline-alerts` SNS topic to a confirmed
+email subscription.
+
+The notification path was validated with a synthetic failure event sent through
+the real EventBridge rule and SNS target. No Glue job was deliberately failed.
+The final rule was restored to AWS Glue events only after validation.
+
+If a job fails, its downstream success trigger does not fire. After the cause is
+corrected, the workflow can be resumed from an attempted node or the processing
+date can be reloaded. Each job replaces its date-specific target objects before
+writing, and the control files provide post-run row-count and revenue
+reconciliation evidence.
+
+See the [operations runbook](docs/operations-runbook.md) for investigation,
+recovery, validation, and schedule-control procedures.
+
 ## Documentation
 
 - [Architecture overview](architecture/architecture-overview.md)
@@ -155,4 +175,4 @@ The following rules must be resolved or clearly documented during Silver and Gol
 
 ## Current Focus
 
-Define and build separate Silver PySpark jobs for `date_dim`, `order_items`, and `order_item_options`. The Silver layer will apply data types, quality flags, and quarantine rules while keeping each table independently controllable.
+Build the Streamlit dashboard against the Athena Gold tables, validate the business views, and prepare the final documentation and walkthrough.

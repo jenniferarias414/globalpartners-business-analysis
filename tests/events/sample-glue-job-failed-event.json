@@ -1,0 +1,17 @@
+{
+  "version": "0",
+  "id": "11111111-2222-3333-4444-555555555555",
+  "detail-type": "Glue Job State Change",
+  "source": "aws.glue",
+  "account": "272987324508",
+  "time": "2026-08-10T22:00:00Z",
+  "region": "us-east-2",
+  "resources": [],
+  "detail": {
+    "jobName": "globalpartners-silver-order-items",
+    "severity": "ERROR",
+    "state": "FAILED",
+    "jobRunId": "jr_sample_validation_only",
+    "message": "Sample failure event used only to validate the EventBridge pattern."
+  }
+}
