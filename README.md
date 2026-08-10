@@ -10,7 +10,7 @@ The solution will support customer value analysis, RFM segmentation, churn indic
 
 ## Current Status
 
-The AWS pipeline from RDS SQL Server through S3 Bronze, separate Silver transformations, Gold business metrics, Glue Data Catalog, and Athena has been built and validated end to end. The Glue Workflow completed all six actions successfully and passed same-date reload checks. Centralized failure notification and the Streamlit dashboard remain in progress.
+The AWS data pipeline and local Streamlit dashboard are complete and validated. The dashboard queries the latest Athena Gold snapshot and provides executive, customer and CLV, sales and loyalty, and location views. Temporary EC2 deployment, official dashboard screenshots, the walkthrough, and final cleanup remain in progress.
 
 ## Implemented Pipeline
 
@@ -165,6 +165,42 @@ reconciliation evidence.
 See the [operations runbook](docs/operations-runbook.md) for investigation,
 recovery, validation, and schedule-control procedures.
 
+## Business Dashboard
+
+The Streamlit dashboard queries the latest Gold snapshot through Amazon Athena
+and presents four business views:
+
+- Executive Overview
+- Customer and CLV
+- Sales and Loyalty
+- Location Performance
+
+Validated dashboard totals include $1,863,974.28 in revenue, 131,328 orders,
+a $14.19 average order value, 20,174 identified customers, and 28 represented
+locations. Customer, loyalty, and location views reconcile to the Gold order
+and revenue totals.
+
+The application caches Athena results for 15 minutes and includes a manual
+refresh control. Local execution uses the `retail-poc` AWS profile. EC2
+execution uses an attached IAM role, so static AWS access keys are not stored
+on the instance.
+
+Run locally:
+
+```bash
+export AWS_PROFILE=retail-poc
+export AWS_REGION=us-east-2
+export GP_ATHENA_WORKGROUP=globalpartners-analysis
+export GP_GLUE_DATABASE=globalpartners_gold
+
+python -m pip install -r streamlit/requirements-streamlit.txt
+python -m streamlit run streamlit/app.py
+```
+
+The source does not include documented product cost, standard price, or
+explicit discount fields, so the dashboard does not calculate profitability or
+discount metrics.
+
 ## Documentation
 
 - [Architecture overview](architecture/architecture-overview.md)
@@ -174,4 +210,4 @@ recovery, validation, and schedule-control procedures.
 
 ## Current Focus
 
-Build the Streamlit dashboard against the Athena Gold tables, validate the business views, and prepare the final documentation and walkthrough.
+Deploy the Streamlit dashboard temporarily to EC2 using an IAM instance role, validate browser access, capture the official dashboard screenshots, and complete the final walkthrough and project documentation.
