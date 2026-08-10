@@ -10,11 +10,7 @@ The solution will support customer value analysis, RFM segmentation, churn indic
 
 ## Current Status
 
-Repository setup, source analysis, architecture approval, AWS infrastructure, and SQL Server source setup are complete.
-
-The first AWS Glue PySpark job successfully extracted all three SQL Server tables into the S3 Bronze layer. Source-to-Bronze row counts matched, and a same-date reload confirmed that existing snapshot files are replaced without doubling the data.
-
-Phase 04 is in progress. The next step is to build separate Silver jobs for the three source tables and apply documented data-quality and quarantine rules.
+The AWS pipeline from RDS SQL Server through S3 Bronze, separate Silver transformations, Gold business metrics, Glue Data Catalog, and Athena has been built and validated end to end. The Glue Workflow completed all six actions successfully and passed same-date reload checks. Centralized failure notification and the Streamlit dashboard remain in progress.
 
 ## Implemented Pipeline
 
@@ -29,7 +25,7 @@ Phase 04 is in progress. The next step is to build separate Silver jobs for the 
 | 02 | AWS architecture, data model, solution design, and SME review | Complete |
 | 03 | AWS infrastructure and SQL Server source setup | Complete |
 | 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | In progress |
-| 05 | Business metrics and analytical SQL queries | Not started |
+| 05 | Business metrics and analytical SQL queries | Complete |
 | 06 | Streamlit dashboard | Not started |
 | 07 | Testing, CI/CD, documentation, and walkthrough | Not started |
 
@@ -115,6 +111,27 @@ The processing flow is:
 7. Display final metrics in a Streamlit dashboard hosted temporarily on Amazon EC2.
 
 The design includes encrypted storage, SSL database connectivity, managed credentials, scheduling, monitoring, failure notification, and processing-date reload support.
+
+## End-to-End Pipeline Validation
+
+![Successful AWS Glue Workflow run](screenshots/full-walkthrough/31-glue-workflow-run-success.png)
+
+The complete AWS Glue Workflow was validated on August 10, 2026. The workflow
+ran the Bronze ingestion, three dependent Silver transformations, Gold business
+metrics job, and Gold crawler in sequence.
+
+- All six workflow actions succeeded with no failures or timeouts.
+- The run completed in approximately 10 minutes 37 seconds.
+- Each downstream step started only after its upstream dependency succeeded.
+- A same-date reload replaced the existing Bronze, Silver, quarantine, and Gold
+  objects before writing.
+- Silver row-count checks and all six Gold revenue reconciliations passed after
+  replacement.
+- The daily 11:00 UTC schedule is configured and remains inactive while the
+  portfolio source is unchanged for cost control.
+
+The validated workflow produced 131,328 Gold orders, 203,518 Gold order lines,
+20,174 customer profiles, and $1,863,974.28 in reconciled order revenue.
 
 ## Open Decisions
 
