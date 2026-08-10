@@ -133,18 +133,17 @@ metrics job, and Gold crawler in sequence.
 The validated workflow produced 131,328 Gold orders, 203,518 Gold order lines,
 20,174 customer profiles, and $1,863,974.28 in reconciled order revenue.
 
-## Open Decisions
+## Implemented Data Rules
 
-The following rules must be resolved or clearly documented during Silver and Gold development:
-
-- Whether `user_id` should be treated as the requested customer identifier.
-- Whether `restaurant_id` should be treated as the requested location identifier.
-- Whether the supplied date dimension should remain limited to 2023 or be supplemented for the full order history.
-- Whether exact repeated option rows represent duplicates or valid repeated selections.
-- How orphan option records should be handled beyond quarantine and reporting.
-- How missing customer identifiers should affect customer-level metrics.
-- How profitability and discount analysis should be handled without documented product-cost or explicit discount fields.
-- What thresholds should be used for RFM and churn indicators.
+- `user_id` is used as the customer identifier.
+- `restaurant_id` is used as the location identifier.
+- The supplied date dimension remains limited to 2023. Orders outside 2023 are retained and flagged, while order dates are derived from `creation_time_utc` for full-history reporting.
+- Repeated option rows are retained and flagged because the source does not provide enough information to confirm that they are errors.
+- Twenty-eight orphan option rows are quarantined and excluded from Gold metrics.
+- The order-item row missing its required line-item fields is quarantined.
+- Orders without `user_id` remain in overall sales metrics but are excluded from customer-level metrics.
+- Discount and profitability metrics are not calculated because the source does not include explicit discount, standard-price, or product-cost fields.
+- Customer analysis uses documented project parameters: a 365-day RFM lookback, a 90-day recent-spend period, and a 45-day churn threshold.
 
 ## Monitoring and Recovery
 
