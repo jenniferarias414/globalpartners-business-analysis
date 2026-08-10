@@ -1,18 +1,24 @@
 # GlobalPartners Business Analysis
 
-AWS-based data engineering and analytics project using SQL Server source data, PySpark transformations, and Streamlit reporting.
+AWS-based data engineering and analytics project using SQL Server source data, AWS Glue PySpark transformations, Amazon S3, Athena, and Streamlit.
 
 ## Project Objective
 
-Build a production-style pipeline that creates a unified view of customer behavior and business performance across restaurant locations and ordering platforms.
+Build an end-to-end pipeline that creates a unified view of customer behavior and business performance across restaurant locations and ordering platforms.
 
 The solution will support customer value analysis, RFM segmentation, churn indicators, sales trends, loyalty comparisons, location performance, and pricing or discount analysis where supported by the source data.
 
 ## Current Status
 
-Source profiling and relationship analysis are complete. The proposed AWS architecture and solution design were approved by the SME on August 7, 2026.
+Repository setup, source analysis, architecture approval, AWS infrastructure, and SQL Server source setup are complete.
 
-Phase 03 will begin with AWS account verification and cost-controlled infrastructure setup.
+The first AWS Glue PySpark job successfully extracted all three SQL Server tables into the S3 Bronze layer. Source-to-Bronze row counts matched, and a same-date reload confirmed that existing snapshot files are replaced without doubling the data.
+
+Phase 04 is in progress. The next step is to build separate Silver jobs for the three source tables and apply documented data-quality and quarantine rules.
+
+## Implemented Pipeline
+
+`CSV setup files → Amazon RDS for SQL Server → AWS Glue JDBC → AWS Glue PySpark → Amazon S3 Bronze Parquet`
 
 ## Project Plan
 
@@ -20,33 +26,55 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 |---|---|---|
 | 00 | Repository setup and source-file organization | Complete |
 | 01 | Source profiling, integrity checks, keys, and relationships | Complete |
-| 02 | AWS architecture, data model, solution design, and review | Complete |
-| 03 | AWS infrastructure and SQL Server source setup | In progress |
-| 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Not started |
+| 02 | AWS architecture, data model, solution design, and SME review | Complete |
+| 03 | AWS infrastructure and SQL Server source setup | Complete |
+| 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | In progress |
 | 05 | Business metrics and analytical SQL queries | Not started |
 | 06 | Streamlit dashboard | Not started |
 | 07 | Testing, CI/CD, documentation, and walkthrough | Not started |
 
 ## Work Completed
 
+### Source Analysis
+
 - Created the repository structure and protected local source files with `.gitignore`.
 - Created a reproducible Python environment.
 - Built scripts for source profiling, candidate-key testing, relationship validation, and exception analysis.
-- Verified the supplied schemas and documented row counts.
-- Generated reports for column quality, keys, relationships, and date coverage.
-- Documented the profiling process and current findings.
-- Drafted the AWS architecture and solution design.
-- Submitted the proposed design for SME approval.
-- Created the encrypted S3 data lake foundation with public-access blocking, versioning, project tags, and separate data-layer prefixes.
-- Created the project security group and S3 gateway endpoint for private Glue, RDS, and S3 connectivity.
-- Created the encrypted Amazon RDS for SQL Server source with restricted network access, automated backups, and RDS-managed credentials in Secrets Manager.
-- Provisioned the encrypted S3, network, and RDS SQL Server foundations.
-- Connected to RDS SQL Server from macOS using DBeaver.
+- Verified the supplied schemas, row counts, missing values, candidate keys, relationships, and date coverage.
+- Generated local reports and documented the profiling findings.
+
+### Architecture and AWS Foundation
+
+- Designed an AWS-based medallion architecture and received SME approval on August 7, 2026.
+- Created an encrypted S3 data lake with public-access blocking, versioning, project tags, and separate data-layer prefixes.
+- Created the project VPC networking configuration, security group, S3 gateway endpoint, and Secrets Manager interface endpoint.
+- Created an encrypted Amazon RDS for SQL Server instance with automated backups and RDS-managed credentials.
+- Configured restricted DBeaver access from macOS.
+- Created the Glue IAM role and tested an SSL-enabled JDBC connection from AWS Glue to SQL Server.
+
+### SQL Server Source
+
 - Created the `globalpartners` database and three typed source tables.
 - Prepared SQL Server-compatible load files without modifying the original CSVs.
-- Loaded and validated all 396,901 source records in SQL Server.
+- Loaded and validated 396,901 source rows:
+  - `dbo.date_dim`: 365 rows
+  - `dbo.order_items`: 203,519 rows
+  - `dbo.order_item_options`: 193,017 rows
+
+### Bronze Ingestion
+
+- Built and deployed the `globalpartners-bronze-ingest` Glue PySpark job.
+- Used complete dated snapshots because the source tables do not all contain reliable change-tracking fields.
+- Added source, processing-date, run, and ingestion-time audit fields.
+- Wrote Snappy-compressed Parquet files to table-specific Bronze paths.
+- Created JSON control documents containing run status, row counts, and output locations.
+- Confirmed that all Bronze row counts matched SQL Server.
+- Reran the same processing date and confirmed that current snapshot objects were replaced while the row counts remained unchanged.
+- Retained earlier object versions through S3 versioning for recovery.
 
 ## Findings to Date
+
+### Source Data
 
 - `order_items.csv` contains 203,519 rows, matching the documented count.
 - `order_item_options.csv` contains 193,017 rows, matching the documented count.
@@ -60,24 +88,43 @@ Phase 03 will begin with AWS account verification and cost-controlled infrastruc
 - `user_id` is missing from 8.75% of order-item rows.
 - `printed_card_number` is missing from 77.36% of order-item rows.
 
-## Proposed AWS Architecture
+### Bronze Validation
 
-![Proposed AWS architecture](architecture/globalpartners-architecture-diagram.png)
+| Source Table | SQL Server Rows | Bronze Rows | Match |
+|---|---:|---:|---|
+| `dbo.date_dim` | 365 | 365 | Yes |
+| `dbo.order_items` | 203,519 | 203,519 | Yes |
+| `dbo.order_item_options` | 193,017 | 193,017 | Yes |
 
-The proposed design uses Amazon RDS for SQL Server as the pipeline source. A scheduled AWS Glue Workflow extracts the source data to an Amazon S3 Bronze layer and runs separate PySpark jobs for the Silver tables. A Gold job creates business-facing analytical tables.
+The reload test used the same processing date and replaced 20 current Spark output objects in each table partition. The replacement snapshot produced the same row counts and did not create a second logical copy of the data.
 
-AWS Glue Data Catalog and Athena provide the SQL query layer. The final Streamlit dashboard will be hosted temporarily on Amazon EC2 for validation, screenshots, and the project walkthrough.
+## Approved AWS Architecture
 
-The design also includes encryption, pipeline monitoring, failure notifications, and processing-date reload support.
+![GlobalPartners AWS architecture](architecture/globalpartners-architecture-diagram.png)
+
+The approved design uses Amazon RDS for SQL Server as the source. An AWS Glue Workflow will coordinate the Bronze ingestion job, separate Silver PySpark jobs, and the Gold analytical job.
+
+The processing flow is:
+
+1. Extract complete source snapshots from SQL Server into S3 Bronze.
+2. Clean and validate each source table through separate Silver jobs.
+3. Route rejected records to the S3 quarantine area.
+4. Create business-facing Gold tables.
+5. Register Gold tables through an AWS Glue crawler and Data Catalog.
+6. Query the Gold layer with Athena.
+7. Display final metrics in a Streamlit dashboard hosted temporarily on Amazon EC2.
+
+The design includes encrypted storage, SSL database connectivity, managed credentials, scheduling, monitoring, failure notification, and processing-date reload support.
 
 ## Open Decisions
 
-The following items require confirmation before transformation rules are finalized:
+The following rules must be resolved or clearly documented during Silver and Gold development:
 
 - Whether `user_id` should be treated as the requested customer identifier.
 - Whether `restaurant_id` should be treated as the requested location identifier.
-- Whether the date dimension should be extended to cover the complete order history.
-- How exact repeated option rows and orphan option records should be handled.
+- Whether the supplied date dimension should remain limited to 2023 or be supplemented for the full order history.
+- Whether exact repeated option rows represent duplicates or valid repeated selections.
+- How orphan option records should be handled beyond quarantine and reporting.
 - How missing customer identifiers should affect customer-level metrics.
 - How profitability and discount analysis should be handled without documented product-cost or explicit discount fields.
 - What thresholds should be used for RFM and churn indicators.
@@ -87,7 +134,8 @@ The following items require confirmation before transformation rules are finaliz
 - [Architecture overview](architecture/architecture-overview.md)
 - [Solution design](docs/solution-design.md)
 - [Source analysis](docs/source-analysis.md)
+- [Learning notes](learning-notes/)
 
 ## Current Focus
 
-Configure AWS Glue access to RDS SQL Server and build the first extraction job from SQL Server into the S3 Bronze layer.
+Define and build separate Silver PySpark jobs for `date_dim`, `order_items`, and `order_item_options`. The Silver layer will apply data types, quality flags, and quarantine rules while keeping each table independently controllable.
