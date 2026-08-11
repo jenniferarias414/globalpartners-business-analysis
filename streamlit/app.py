@@ -19,7 +19,7 @@ st.caption("Business performance and customer analysis powered by AWS Athena Gol
 
 with st.sidebar:
     st.header("Dashboard Controls")
-    if st.button("Refresh Athena data", width="stretch"):
+    if st.button("Refresh Athena data", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -318,7 +318,7 @@ with customer_tab:
         )
         st.altair_chart(
             clv_chart.properties(height=340),
-            width="stretch",
+            use_container_width=True,
         )
     with segment_column:
         st.subheader("Customers by RFM Segment")
@@ -355,7 +355,7 @@ with customer_tab:
         )
         st.altair_chart(
             segment_chart.properties(height=340),
-            width="stretch",
+            use_container_width=True,
         )
 
     st.subheader("CLV Tier Detail")
@@ -375,7 +375,7 @@ with customer_tab:
                 "Total Lifetime Revenue": "${:,.2f}",
             }
         ),
-        width="stretch",
+        use_container_width=True,
         hide_index=True,
     )
 
@@ -401,7 +401,7 @@ with customer_tab:
                 "Days Since Last Order": "{:,.0f}",
             }
         ),
-        width="stretch",
+        use_container_width=True,
         hide_index=True,
     )
 
@@ -457,7 +457,7 @@ with sales_tab:
         )
         st.altair_chart(
             loyalty_chart.properties(height=340),
-            width="stretch",
+            use_container_width=True,
         )
     with channel_column:
         st.subheader("Revenue by Sales Channel")
@@ -479,7 +479,7 @@ with sales_tab:
         )
         st.altair_chart(
             channel_chart.properties(height=340),
-            width="stretch",
+            use_container_width=True,
         )
 
     st.subheader("Loyalty Performance Detail")
@@ -501,7 +501,7 @@ with sales_tab:
                 "Identified-Customer Orders": "{:,.0f}",
             }
         ),
-        width="stretch",
+        use_container_width=True,
         hide_index=True,
     )
 
@@ -524,7 +524,7 @@ with sales_tab:
                 "Identified Customers": "{:,.0f}",
             }
         ),
-        width="stretch",
+        use_container_width=True,
         hide_index=True,
     )
 
@@ -580,7 +580,7 @@ with location_tab:
     )
     st.altair_chart(
         location_chart.properties(height=500),
-        width="stretch",
+        use_container_width=True,
     )
 
     st.subheader("Location Performance Detail")
@@ -606,7 +606,7 @@ with location_tab:
                 "Loyalty Order Share": "{:.2f}%",
             }
         ),
-        width="stretch",
+        use_container_width=True,
         hide_index=True,
     )
 
