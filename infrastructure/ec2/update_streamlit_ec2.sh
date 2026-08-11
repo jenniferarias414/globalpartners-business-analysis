@@ -77,7 +77,7 @@ cat >"$COMMAND_PARAMETERS_FILE" <<JSON
     "systemctl restart globalpartners-streamlit.service",
     "systemctl is-active globalpartners-streamlit.service",
     "/opt/globalpartners-business-analysis/.venv/bin/python -m pip show streamlit",
-    "git -C /opt/globalpartners-business-analysis rev-parse HEAD"
+    "sudo -u ec2-user git -C /opt/globalpartners-business-analysis rev-parse HEAD"
   ]
 }
 JSON

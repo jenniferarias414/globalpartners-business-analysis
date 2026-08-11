@@ -1,0 +1,99 @@
+name: GlobalPartners CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: globalpartners-ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate project code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: pip
+          cache-dependency-path: streamlit/requirements-streamlit.txt
+
+      - name: Install Streamlit dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r streamlit/requirements-streamlit.txt
+
+      - name: Compile Python files
+        run: |
+          python -m compileall -q analysis glue/jobs streamlit
+
+      - name: Validate shell scripts
+        run: |
+          find infrastructure -type f -name '*.sh' -print0 \
+            | xargs -0 -n1 bash -n
+
+      - name: Write validation summary
+        run: |
+          {
+            echo "## Continuous integration passed"
+            echo "- Python files compiled successfully with Python 3.9."
+            echo "- Infrastructure shell scripts passed syntax validation."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deliver:
+    name: Build delivery artifact
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create build metadata
+        id: build
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Package validated repository
+        run: |
+          mkdir -p dist/package
+          git archive HEAD | tar -x -C dist/package
+          {
+            echo "Project: globalpartners-business-analysis"
+            echo "Commit: $GITHUB_SHA"
+            echo "Branch: $GITHUB_REF_NAME"
+            echo "Built by: GitHub Actions"
+          } > dist/package/BUILD_INFO.txt
+          cd dist/package
+          zip -qr "../globalpartners-business-analysis-${GITHUB_SHA::7}.zip" .
+
+      - name: Upload delivery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: globalpartners-business-analysis-${{ steps.build.outputs.short_sha }}
+          path: dist/globalpartners-business-analysis-*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Write delivery summary
+        run: |
+          {
+            echo "## Continuous delivery completed"
+            echo "- A validated project ZIP was created from commit \`$GITHUB_SHA\`."
+            echo "- The artifact is available from this workflow run for 14 days."
+          } >> "$GITHUB_STEP_SUMMARY"
