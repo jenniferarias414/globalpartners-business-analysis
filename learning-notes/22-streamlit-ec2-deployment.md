@@ -25,3 +25,11 @@ The EC2 instance was used only for final validation, screenshots, and the walkth
 ## Main lesson
 
 Application validation needs to include the actual deployment runtime. A locally successful dashboard can still expose Python or library-version differences in EC2. Matching runtime versions and keeping a repeatable update and teardown process reduces that risk.
+
+## Cost-Control Reminder
+
+<img src="images/turn-off-that-ec2.png" alt="EC2 cost-control reminder" width="360">
+
+Temporary cloud resources need a teardown plan. After validation, screenshots,
+and the walkthrough were complete, I removed the EC2 instance and its supporting
+resources instead of leaving an unused deployment running.
