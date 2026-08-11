@@ -64,20 +64,40 @@ if [[ "$SSM_STATUS" != "Online" ]]; then
     exit 1
 fi
 
+COMMAND_PARAMETERS_FILE="$(mktemp)"
+trap 'rm -f "$COMMAND_PARAMETERS_FILE"' EXIT
+
+cat >"$COMMAND_PARAMETERS_FILE" <<JSON
+{
+  "commands": [
+    "set -euo pipefail",
+    "sudo -u ec2-user git -C /opt/globalpartners-business-analysis fetch origin",
+    "sudo -u ec2-user git -C /opt/globalpartners-business-analysis checkout --detach $DEPLOY_COMMIT",
+    "/opt/globalpartners-business-analysis/.venv/bin/python -m pip install -r /opt/globalpartners-business-analysis/streamlit/requirements-streamlit.txt",
+    "systemctl restart globalpartners-streamlit.service",
+    "systemctl is-active globalpartners-streamlit.service",
+    "/opt/globalpartners-business-analysis/.venv/bin/python -m pip show streamlit",
+    "git -C /opt/globalpartners-business-analysis rev-parse HEAD"
+  ]
+}
+JSON
+
 COMMAND_ID="$(
     aws_cli ssm send-command \
         --instance-ids "$INSTANCE_ID" \
         --document-name AWS-RunShellScript \
         --comment "Deploy Streamlit compatibility hotfix" \
-        --parameters commands="set -euo pipefail,sudo -u ec2-user git -C /opt/globalpartners-business-analysis fetch origin,sudo -u ec2-user git -C /opt/globalpartners-business-analysis checkout --detach $DEPLOY_COMMIT,/opt/globalpartners-business-analysis/.venv/bin/python -m pip install -r /opt/globalpartners-business-analysis/streamlit/requirements-streamlit.txt,systemctl restart globalpartners-streamlit.service,systemctl is-active globalpartners-streamlit.service,/opt/globalpartners-business-analysis/.venv/bin/python -c 'import streamlit; print(streamlit.__version__)',git -C /opt/globalpartners-business-analysis rev-parse HEAD" \
+        --parameters "file://$COMMAND_PARAMETERS_FILE" \
         --query 'Command.CommandId' \
         --output text
 )"
 
 printf 'SSM command: %s\n' "$COMMAND_ID"
-aws_cli ssm wait command-executed \
+if ! aws_cli ssm wait command-executed \
     --command-id "$COMMAND_ID" \
-    --instance-id "$INSTANCE_ID"
+    --instance-id "$INSTANCE_ID"; then
+    printf 'SSM waiter reported a non-success state; retrieving command details.\n'
+fi
 
 COMMAND_STATUS="$(
     aws_cli ssm get-command-invocation \
