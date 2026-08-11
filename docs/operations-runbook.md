@@ -150,8 +150,7 @@ Confirm all of the following:
 | Gold daily sales | 67,807 |
 
 These values apply to the supplied project snapshot. A changed SQL Server source
-requires comparison with the new source counts rather than forcing the old
-values.
+requires comparison with the new source counts.
 
 ## Schedule Control
 
@@ -177,18 +176,3 @@ aws glue stop-trigger \
 
 Stopping the schedule prevents future scheduled starts. It does not stop a
 workflow run that is already in progress.
-
-## Escalation Information
-
-Provide the following when requesting support:
-
-- AWS account and region
-- Workflow name and run ID
-- Job or crawler name
-- Job run ID
-- Failure state and timestamp
-- Glue error message
-- Relevant CloudWatch log excerpt
-- Processing date
-- Whether any downstream nodes started
-- Latest successful workflow run ID
