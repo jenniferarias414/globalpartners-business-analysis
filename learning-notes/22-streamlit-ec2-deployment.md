@@ -20,16 +20,16 @@ A compatibility issue appeared because Python 3.9 installed Streamlit 1.50.0, wh
 
 ## Cost control
 
-The EC2 instance was used only for final validation, screenshots, and the walkthrough. After evidence was captured, the instance, security group, instance profile, and IAM role were removed with the project teardown script.
-
-## Main lesson
-
-Application validation needs to include the actual deployment runtime. A locally successful dashboard can still expose Python or library-version differences in EC2. Matching runtime versions and keeping a repeatable update and teardown process reduces that risk.
-
-## Cost-Control Reminder
+The EC2 deployment was intentionally temporary. It remained active only for
+final validation, screenshots, and the walkthrough. After the evidence was
+captured, the teardown script removed the instance, security group, instance
+profile, and IAM role so unused deployment resources would not remain active.
 
 <img src="images/turn-off-that-ec2.png" alt="EC2 cost-control reminder" width="360">
 
-Temporary cloud resources need a teardown plan. After validation, screenshots,
-and the walkthrough were complete, I removed the EC2 instance and its supporting
-resources instead of leaving an unused deployment running.
+## Main lesson
+
+Application validation needs to include the actual deployment runtime. A locally
+successful dashboard can still expose Python or library-version differences in
+EC2. Matching runtime versions and keeping a repeatable update and teardown
+process reduces that risk.
