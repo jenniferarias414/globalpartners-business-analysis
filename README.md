@@ -6,15 +6,15 @@ AWS-based data engineering and analytics project using SQL Server source data, A
 
 Build an end-to-end pipeline that creates a unified view of customer behavior and business performance across restaurant locations and ordering platforms.
 
-The solution will support customer value analysis, RFM segmentation, churn indicators, sales trends, loyalty comparisons, location performance, and pricing or discount analysis where supported by the source data.
+The solution supports customer value analysis, RFM segmentation, churn indicators, sales trends, loyalty comparisons, and location performance. Pricing, discount, and profitability measures are excluded where the source data does not support them.
 
 ## Current Status
 
-The AWS data pipeline and local Streamlit dashboard are complete and validated. The dashboard queries the latest Athena Gold snapshot and provides executive, customer and CLV, sales and loyalty, and location views. Temporary EC2 deployment, official dashboard screenshots, the walkthrough, and final cleanup remain in progress.
+The project is complete and validated end to end. The AWS Glue Workflow, same-date reload behavior, failure notification path, Athena queries, Streamlit dashboard, temporary EC2 deployment, GitHub Actions CI/CD workflow, official screenshots, and walkthrough have all been completed. Temporary EC2 resources were removed after validation to control cost.
 
 ## Implemented Pipeline
 
-`CSV setup files → Amazon RDS for SQL Server → AWS Glue JDBC → AWS Glue PySpark → Amazon S3 Bronze Parquet`
+`CSV setup files → Amazon RDS for SQL Server → AWS Glue JDBC → S3 Bronze → Glue PySpark Silver and quarantine → Glue PySpark Gold → Glue Data Catalog → Athena → Streamlit on EC2`
 
 ## Project Plan
 
@@ -26,8 +26,8 @@ The AWS data pipeline and local Streamlit dashboard are complete and validated. 
 | 03 | AWS infrastructure and SQL Server source setup | Complete |
 | 04 | PySpark transformation pipeline, scheduling, encryption, and reload handling | Complete |
 | 05 | Business metrics and analytical SQL queries | Complete |
-| 06 | Streamlit dashboard | In Progress |
-| 07 | Testing, CI/CD, documentation, and walkthrough | Not started |
+| 06 | Streamlit dashboard | Complete |
+| 07 | Testing, CI/CD, documentation, and walkthrough | Complete |
 
 ## Work Completed
 
@@ -98,7 +98,7 @@ The reload test used the same processing date and replaced 20 current Spark outp
 
 ![GlobalPartners AWS architecture](architecture/globalpartners-architecture-diagram.png)
 
-The approved design uses Amazon RDS for SQL Server as the source. An AWS Glue Workflow will coordinate the Bronze ingestion job, separate Silver PySpark jobs, and the Gold analytical job.
+The approved design uses Amazon RDS for SQL Server as the source. An AWS Glue Workflow coordinates the Bronze ingestion job, separate Silver PySpark jobs, the Gold analytical job, and the Gold crawler.
 
 The processing flow is:
 
@@ -111,6 +111,22 @@ The processing flow is:
 7. Display final metrics in a Streamlit dashboard hosted temporarily on Amazon EC2.
 
 The design includes encrypted storage, SSL database connectivity, managed credentials, scheduling, monitoring, failure notification, and processing-date reload support.
+
+## Why This Technology Stack
+
+| Technology | Why it was used |
+|---|---|
+| Amazon RDS for SQL Server | Preserves the required SQL Server source and supports relational source validation. |
+| DBeaver | Provides a macOS-compatible SQL client for loading and validating the RDS source tables. |
+| Amazon S3 and Parquet | Provides durable, cost-controlled Bronze, Silver, quarantine, and Gold storage with efficient analytical files. |
+| AWS Glue and PySpark | Runs managed, scalable transformations without maintaining a Spark cluster. Separate jobs keep table-specific quality rules clear. |
+| AWS Glue Workflow | Controls dependencies across Bronze, Silver, Gold, and crawler steps and provides one workflow-run view. |
+| Glue Data Catalog and crawler | Registers the Gold schemas so the results can be queried consistently from Athena. |
+| Amazon Athena | Provides serverless SQL analysis directly over the Gold Parquet tables. |
+| Streamlit | Turns the validated analytical tables into a focused, interactive business dashboard. |
+| Amazon EC2 | Provides temporary AWS hosting for Streamlit and supports an IAM instance role instead of stored access keys. |
+| EventBridge, SNS, and CloudWatch | Support scheduling, failure notifications, logs, and operational recovery. |
+| GitHub Actions | Automatically validates the code and creates a traceable delivery artifact for each successful `main` build. |
 
 ## End-to-End Pipeline Validation
 
@@ -201,13 +217,53 @@ The source does not include documented product cost, standard price, or
 explicit discount fields, so the dashboard does not calculate profitability or
 discount metrics.
 
+![Streamlit Executive Overview](screenshots/full-walkthrough/33-streamlit-executive-overview.png)
+
+## Temporary EC2 Deployment
+
+The dashboard was deployed temporarily to an encrypted Amazon Linux 2023
+`t3.micro` instance. The instance used IMDSv2, an attached IAM role for Athena,
+Glue Catalog, and S3 access, and a security group that allowed Streamlit port
+8501 only from the validation IP address. No SSH ingress or static AWS access
+keys were used.
+
+The deployment, validation, update, and teardown procedures are reproducible
+through the scripts in `infrastructure/ec2`. After the dashboard screenshots and
+walkthrough were captured, the instance, security group, instance profile, and
+IAM role were removed successfully.
+
+![Temporary EC2 dashboard instance](screenshots/full-walkthrough/37-ec2-streamlit-instance-running.png)
+
+## GitHub Actions CI/CD
+
+The GitHub Actions workflow runs on pushes and pull requests targeting `main`
+and can also be started manually. The continuous-integration job installs the
+dashboard dependencies, compiles the Python code with Python 3.9, and validates
+the infrastructure shell scripts without executing AWS operations.
+
+After validation succeeds on `main`, the continuous-delivery job packages the
+tracked repository files, adds build metadata containing the source commit, and
+uploads a versioned ZIP artifact to the workflow run. AWS deployment remains
+manually controlled because the EC2 environment is temporary and cost-aware.
+
+![Successful GitHub Actions CI/CD run](screenshots/full-walkthrough/39-github-actions-ci-cd-success.png)
+
 ## Documentation
 
 - [Architecture overview](architecture/architecture-overview.md)
 - [Solution design](docs/solution-design.md)
 - [Source analysis](docs/source-analysis.md)
+- [Silver transformation rules](docs/silver-transformation-rules.md)
+- [Gold data model](docs/gold-data-model.md)
+- [Operations runbook](docs/operations-runbook.md)
+- [GitHub Actions CI/CD](docs/github-actions-ci-cd.md)
+- [Repository structure](docs/repository-structure.md)
 - [Learning notes](learning-notes/)
 
-## Current Focus
+## Project Completion
 
-Deploy the Streamlit dashboard temporarily to EC2 using an IAM instance role, validate browser access, capture the official dashboard screenshots, and complete the final walkthrough and project documentation.
+The final repository includes source-analysis utilities, Glue job code,
+infrastructure and operations scripts, analytical SQL, the Streamlit dashboard,
+technical documentation, learning notes, 39 validation screenshots, GitHub
+Actions CI/CD, and a short project walkthrough. Temporary AWS resources used
+only for the dashboard demonstration were removed after evidence was captured.
