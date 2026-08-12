@@ -12,6 +12,14 @@ The solution supports customer value analysis, RFM segmentation, churn indicator
 
 The project is complete and validated end to end. The AWS Glue Workflow, same-date reload behavior, failure notification path, Athena queries, Streamlit dashboard, temporary EC2 deployment, GitHub Actions CI/CD workflow, official screenshots, and walkthrough have all been completed. Temporary EC2 resources were removed after validation to control cost.
 
+## Project Walkthrough
+
+[Watch the GlobalPartners Business Analysis walkthrough on YouTube](https://youtu.be/AFskNZaXybo)
+
+The walkthrough covers the source analysis, AWS architecture, Glue Workflow,
+Athena validation, Streamlit dashboard, temporary EC2 deployment, and GitHub
+Actions CI/CD.
+
 ## Implemented Pipeline
 
 `CSV setup files → Amazon RDS for SQL Server → AWS Glue JDBC → S3 Bronze → Glue PySpark Silver and quarantine → Glue PySpark Gold → Glue Data Catalog → Athena → Streamlit on EC2`
@@ -264,6 +272,5 @@ manually controlled because the EC2 environment is temporary and cost-aware.
 
 The final repository includes source-analysis utilities, Glue job code,
 infrastructure and operations scripts, analytical SQL, the Streamlit dashboard,
-technical documentation, learning notes, 39 validation screenshots, GitHub
-Actions CI/CD, and a short project walkthrough. Temporary AWS resources used
-only for the dashboard demonstration were removed after evidence was captured.
+technical documentation, learning notes, 39 validation screenshots, and GitHub
+Actions CI/CD. A separate project walkthrough summarizes the completed work.
