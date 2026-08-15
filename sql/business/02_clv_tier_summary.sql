@@ -12,6 +12,7 @@ WITH current_customers AS (
 totals AS (
     SELECT SUM(lifetime_revenue) AS total_identified_revenue
     FROM current_customers
+    
 )
 SELECT
     clv_tier,
